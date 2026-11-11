@@ -13,17 +13,15 @@ We've also learned how to interact with a vector using functions and by **indexi
 +-----------------------------+-------------------------------+
 |                             |                               |
 +=============================+===============================+
-| Objects to be covered       | Data Structures to be covered |
+| Object types to be covered  | Data Structures to be covered |
 +-----------------------------+-------------------------------+
-| - Numeric (integer, double) | - vector                      |
+| - Numeric (integer, double) | - Vectors                     |
 |                             |                               |
-| - character                 | - list                        |
+| - Character                 | - Lists                       |
 |                             |                               |
-| - logical                   | - dataframe                   |
+| - Logical                   | - Dataframes                  |
 |                             |                               |
-| - factor                    | - matrix\*                    |
-|                             |                               |
-| - complex                   | - array\*                     |
+|                             | - matrix\*                    |
 +-----------------------------+-------------------------------+
 
 We will re-enter coding in this section, beginning again with the vector, but in greater depth. Here we will encounter most of the basic object types as individual elements of these vectors. We will then discuss lists, and move on to dataframes as quickly as possible, since it is the dataframe where the power of R is best leveraged.
@@ -48,14 +46,21 @@ logical_1 <- c(T,F,F)
 
 Even though R vectors have a specific type, it's quite easy to convert them to another type. This is called **coercion**. This flexibility works mostly to our advantage; for example, we generally don't worry about whether a vectors is an integer versus double in R, and just consider them to be numeric. But unexpected coercion can cause confusing errors to arise, so always consider this possibility when coding.
 
-For explicit coercion, use the as.\*() functions.
+For explicit coercion, use the as.xxxxx() functions.
 
 ```{r}
 v_log <- c(TRUE,FALSE,FALSE,TRUE)
-as.integer(v_log)
-as.numeric(v_log)
-as.character(v_log)
-as.logical(as.integer(v_log))
+an_int <- as.integer(v_log)
+a_num <- as.numeric(v_log)
+a_char <- as.character(v_log)
+a_log <- TRUE
+#Use class() or typeof() to look at each of these variables
+
+
+
+#Convert a_log to an integer, then to a character
+
+
 ```
 
  
@@ -429,6 +434,7 @@ NaN is the object produce when there is no possible mathematical result for an o
 a_vect/0
 sqrt(a_vect)
 is.nan(sqrt(a_vect))
+sum(is.nan(sqrt(a_vect)))
 ```
 
 We can see above how Inf, -Inf are produced when dividing by zero. Another common way that -Inf is produced is when taking the logarithm of zero
@@ -443,15 +449,28 @@ log(rep(0, 5))
 
 You've now been introduced to most of the basic R object types. We will be working with these objects now using `for` loops in order to develop some coding skills that are commonly used.
 
+Note: R is very forgiving about lines and indentations, but there are some accepted standards.
+
 ```{r}
 input = c(2,4,6,8)
 for (i in input) { 
   print( (i)^.5 )
-  }
+}
 
 ```
 
-## **Conditionals: `if`, `else if`, `else`**
+```{r}
+input1 = 1:5
+input2 = c(10,20,30)
+for (i in input1) { 
+  for (j in input2) {
+    print(i*j)
+  }
+}
+
+```
+
+## **Conditionals: `if`, `else`**
 
 Let's write a more complicated for-loop using if and else.
 
@@ -464,6 +483,37 @@ for (i in 1:10) {
     print(paste0(i, ' is odd'))  
   }
 }
+
+```
+
+#If, else, and else if
+
+```{R}
+for (i in 1:10) {
+  if (i%%2 == 0) { 
+    print(paste0(i, ' is even')) 
+  } 
+  else if (i == 5) {
+    print('halfway there!') 
+  }
+  else { 
+    print(paste0(i, ' is odd'))  
+  }
+}
+```
+
+```{R}
+# Experiment with Boolean operators below.
+# Add an else if statement so that the code prints a response (like 'staying home').
+
+temperature <- 10
+is_raining <- TRUE
+
+if (temperature > 25 & is_raining) {
+  print("Won't need a jacket, but bring an umbrella!")
+} else if (temperature < 15 & !is_raining) {
+  print("Bring a jacket.")
+} # Add another else if statement here.
 
 ```
 
@@ -499,27 +549,9 @@ gc_count
 
 ```
 
-#If, else, and else if
-
-```{R}
-for (i in 1:10) {
-  if (i%%2 == 0) { 
-    print(paste0(i, ' is even')) 
-  } 
-  else if (i == 5) {
-    print('halfway there!') 
-  }
-  else { 
-    print(paste0(i, ' is odd'))  
-  }
-}
-```
-
-**Optional challenge**: Change the code so that '5 is odd' also prints.
-
 ### Code break
 
-Use a for loop along with a condition test and an accumulator (in this case, a vector) to gather all query sequences that contain the query (use str_find).
+Use a for loop along with a condition test and an accumulator (in this case, a vector) to gather all query sequences that contain the query (look up and use the function str_find() ).
 
 ```{R}
 sequences = c("ATGCGT", "ACGT", "TTAAGC", "ATCGCACG")
@@ -534,7 +566,7 @@ Read some more complicated code, and figure out why `next` (skips to the next it
 ```{R}
 usernames <- c("alice", "", "bob", "carol", "", "dave")
 target <- "carol"
-flag = F
+
 for (user in usernames) {
   if (user == "") {
     next  
@@ -543,13 +575,10 @@ for (user in usernames) {
   if (user == target) {
     message <- glue('found {target}!, Stopping search\n')
     print(message)
-    flag = T
     break
   }
 }
-if (flag == F){
-  cat(glue('target {target} not found'))
-  }
+
 cat("Done\n")
 
 ```
@@ -612,7 +641,7 @@ inSeq <- ('ACGTacTGaaACACGTTGAGTacTGaaACGTacTGaa')
 quality_counts(inSeq)
 ```
 
-More complex:
+**A more complex function:**
 
 Make a function that calls this function on each sequence from an input list of sequences. Output a list named by the sequences.
 
@@ -630,26 +659,43 @@ Function output: list of percentage vectors
 
 4.  Return the list.
 
-    Hint: to simply add an element to an empty list, use append() like so: empty_list \<- append(empty_list, list(\<new element\>).
+```{R}
+#To simply add an element to an empty list, use append() 
+sequences = c("ATGCGC", "ATNNGC", "GGXXCTA", "ATATAT", "I'm invalid")
+sequences <- append(sequences, list("CCC"))
+sequences
+```
 
 ```{R}
-inSeq <- as.list(c(
-'ACGTacTGaaACACGTTGAGTacTGaaACGTacTGaa', 'ACGTacTGaaACACGTTGCCCTTGGGGGTGaaACGTacT', 'ACGTacTGTTTGGGGGTGAGTacTGaaACGTacTGGG'
+inSeq <- as.list( c(
+'ACGTCGTTGAGTacTGaaACGTacTGaa', 
+'ACGTacTGaaACACGTTGCCCGaaACGTacT', 
+'ACGTacTGTGTGAGTacTGaaACGTacTGGG'
 ))
 #your code here:
 test_sequences <- function(seq_list){
   out_list <- list()
   for (i in seq_list) {
-    sub_vect <- quality_counts(i)
-    out_list <- append(out_list, list(sub_vect))
+    #call the function we made here, and then add the result to out_list
   }
-  return(out_list)
 }
+
+#don't forget a return statement!!
+
 test_sequences(inSeq)
 
 ```
 
-Named lists make objects more understandable
+Named lists make objects more understandable.
+
+The following adds a named element to a list: list[[seqName \<- sub
+
+```{R}
+sequences <- c("ATGCGC", "ATNNGC", "GGXXCTA", "ATATAT", "I'm invalid")
+sequences <- append(sequences, list("TTTT"))
+sequences
+
+```
 
 ```{R}
 inSeq <- as.list(c(
@@ -661,11 +707,22 @@ test_sequences <- function(seq_list){
   out_list <- list()
   for (seqName in names(seq_list)) {
     sub_vect <- quality_counts(seq_list[[seqName]])
-    out_list[[seqName]] <- sub_vect
+    out_list[[seqName]] <- sub_vect # another way to add to a list !
   }
   return(out_list)
 }
 gc_counts <- test_sequences(inSeq)
+
+
+```
+
+If that was too easy, with the sequences below, add a check in order to screen out any sequence that has an error in it (contains a nucleotide that is not ACGTNacgt). Use 'any means necessary' to get the answer, but try to understand it!
+
+```{R}
+sequences = c("ATGCGC", "ATNNGC", "GGXXCTA", "ATATAT", "I'm invalid")
+
+#your code here
+
 
 
 ```
@@ -706,6 +763,8 @@ dataf <- read.table("data/walrus_sounds_date_random.tsv", head = T, sep = "\t", 
 dim(dataf)
 row_names_vect <- paste0(rep('row', 200), 1:200)
 rownames(dataf) <- row_names_vect
+
+
 #slice using column and row names
 dataf[c('row3','row8'), c('name', 'time_min_sec')]
 #slice using indices
@@ -784,17 +843,13 @@ separate_and_write = function(df_file_name) {
   walrus_names <- unique(dataframe_in$name)
   for (wal_name in walrus_names){
     dataf_sub <- dataframe_in[dataframe_in$name == wal_name,]
-    mins <- as.numeric(str_split_i(dataf_sub$time_min_sec, ":",1))*60
-    secs <- as.numeric(str_split_i(dataf_sub$time_min_sec, ":",2))
-    dataf_sub$seconds <- mins + secs
-    #your code here:
-    mean_voc <- mean(dataf_sub$seconds)
-    dataf_sub$voc_length <- ifelse(dataf_sub$seconds < mean_voc, 'short', 'long')
+    #your code here (add seconds column and column for long/short vocalization
+
     write.table(dataf_sub, paste0(wal_name, '_table.txt' ), quote = F, sep = '\t', col.names = T, row.names = F) 
   }
 }
-separate_and_write('data/walrus_sounds_date_random.tsv')
-df_file_name <- 'walrus_sounds_date_random.tsv'
+#Call the function below to test it
+
 ```
 
  
